@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Text,
   TextInput,
@@ -6,33 +6,62 @@ import {
   StyleSheet,
   StatusBar,
   ScrollView,
+  Alert,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { registerUser } from '../Services/authService';
 
-export default function RegisterScreen({navigation}) {
+
+export default function RegisterScreen({ navigation }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const handleRegister = async () => {
+    if (!name || !email || !password || !confirmPassword) {
+      Alert.alert('Eksik Bilgi', 'Lütfen tüm alanları doldurun.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Hata', 'Şifreler eşleşmiyor.');
+      return;
+    }
+
+    const result = await registerUser(name, email, password);
+
+    if (result.success) {
+      Alert.alert('Kayıt Başarılı', 'Giriş yapabilirsiniz.');
+      navigation.replace('Login');
+    } else {
+      Alert.alert('Hata', result.error.message || 'Bir hata oluştu.');
+    }
+  };
+
   return (
     <LinearGradient colors={['#00c853', '#D1EAED']} style={styles.container}>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="transparent"
-        translucent
-      />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
-      <ScrollView
-        contentContainerStyle={styles.innerContainer}
-        showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.innerContainer} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>EcoApp</Text>
 
         <TextInput
           placeholder="İsim"
           placeholderTextColor="#4d4d4d"
           style={styles.input}
+          value={name}
+          onChangeText={setName}
         />
 
         <TextInput
           placeholder="E-posta"
           placeholderTextColor="#4d4d4d"
           style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
 
         <TextInput
@@ -40,6 +69,8 @@ export default function RegisterScreen({navigation}) {
           placeholderTextColor="#4d4d4d"
           secureTextEntry
           style={styles.input}
+          value={password}
+          onChangeText={setPassword}
         />
 
         <TextInput
@@ -47,16 +78,16 @@ export default function RegisterScreen({navigation}) {
           placeholderTextColor="#4d4d4d"
           secureTextEntry
           style={styles.input}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
         />
 
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text style={styles.buttonText}>Kayıt Ol</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.loginText}>
-            Zaten bir hesabın var mı ? Giriş yap
-          </Text>
+          <Text style={styles.loginText}>Zaten bir hesabın var mı? Giriş yap</Text>
         </TouchableOpacity>
       </ScrollView>
     </LinearGradient>
