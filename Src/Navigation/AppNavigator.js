@@ -4,6 +4,7 @@ import React from 'react';
 import LoginScreen from '../Screens/loginPage';
 import RegisterScreen from '../Screens/registerPage';
 import BottomTabNavigator from './BottomTabNavigator';
+import Email from '../Screens/ForgotPasswordPage/Email';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +17,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Home" component={BottomTabNavigator} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Email" component={Email} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,11 +1,11 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import React from 'react'
-import Dashboard from '../Screens/TabScreens/Dashboard'
-import Report from '../Screens/TabScreens/Report'
-import Stock from '../Screens/TabScreens/Stock'
-import GreenFinance from '../Screens/TabScreens/GreenFinance'
-import Setting from '../Screens/TabScreens/Setting'
-import { Image } from 'react-native'
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import React from 'react';
+import Dashboard from '../Screens/TabScreens/Dashboard';
+import Report from '../Screens/TabScreens/Report';
+import Stock from '../Screens/TabScreens/Stock';
+import GreenFinance from '../Screens/TabScreens/GreenFinance';
+import Setting from '../Screens/TabScreens/Setting';
+import {Image} from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -13,8 +13,8 @@ export default function BottomTabNavigator() {
   return (
     <Tab.Navigator
       initialRouteName="Dashboard"
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
+      screenOptions={({route}) => ({
+        tabBarIcon: ({color, size}) => {
           let iconSource;
 
           if (route.name === 'Dashboard') {
@@ -29,18 +29,21 @@ export default function BottomTabNavigator() {
             iconSource = require('../Assets/icon/gear.png');
           }
 
-          return <Image source={iconSource} style={{ width: size, height: size, tintColor: color }} />;
+          return (
+            <Image
+              source={iconSource}
+              style={{width: size, height: size, tintColor: color}}
+            />
+          );
         },
         tabBarActiveTintColor: '#66cdaa',
         tabBarInactiveTintColor: 'gray',
-      })}
-    >
+      })}>
       <Tab.Screen name="Dashboard" component={Dashboard} />
       <Tab.Screen name="Raporlar" component={Report} />
       <Tab.Screen name="Stok" component={Stock} />
       <Tab.Screen name="Yeşil Finans" component={GreenFinance} />
       <Tab.Screen name="Ayarlar" component={Setting} />
     </Tab.Navigator>
-  )
+  );
 }
-

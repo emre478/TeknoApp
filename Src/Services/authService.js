@@ -26,3 +26,12 @@ export const logoutUser = async () => {
     return { success: false, error };
   }
 };
+
+export const sendPasswordReset = async (email) => {
+  try {
+    await auth().sendPasswordResetEmail(email);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error };
+  }
+};

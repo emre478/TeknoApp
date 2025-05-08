@@ -16,7 +16,6 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    // 🔐 Giriş alanları boş mu?
     if (!email || !password) {
       Alert.alert('Eksik Bilgi', 'Lütfen e-posta ve şifrenizi girin.');
       return;
@@ -25,7 +24,6 @@ export default function LoginScreen({ navigation }) {
     const result = await loginUser(email, password);
 
     if (result.success) {
-      // ✅ Direkt Anasayfaya geç
       navigation.replace('Home');
     } else {
       const code = result.error?.code || '';
@@ -38,6 +36,10 @@ export default function LoginScreen({ navigation }) {
         Alert.alert('Hata', result.error.message || 'Bir hata oluştu.');
       }
     }
+  };
+
+  const handleForgotPassword = () => {
+    navigation.navigate('Email');
   };
 
   return (
@@ -72,6 +74,10 @@ export default function LoginScreen({ navigation }) {
 
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleForgotPassword}>
+          <Text style={styles.forgotText}>Şifremi Unuttum</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
@@ -120,6 +126,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  forgotText: {
+    color: '#1e88e5',
+    marginTop: 15,
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
   registerText: {
     color: '#2e7d32',
