@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,40 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Alert,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { loginUser } from '../Services/authService';
 
-export default function LoginScreen({navigation, setIsLoggedIn}) {
-  const handleLogin = () => {
-    setIsLoggedIn(true);
+export default function LoginScreen({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    // 🔐 Giriş alanları boş mu?
+    if (!email || !password) {
+      Alert.alert('Eksik Bilgi', 'Lütfen e-posta ve şifrenizi girin.');
+      return;
+    }
+
+    const result = await loginUser(email, password);
+
+    if (result.success) {
+      // ✅ Direkt Anasayfaya geç
+      navigation.replace('Home');
+    } else {
+      const code = result.error?.code || '';
+      if (
+        code === 'auth/user-not-found' ||
+        code === 'auth/wrong-password'
+      ) {
+        Alert.alert('Hatalı Giriş', 'E-posta veya şifreniz yanlış.');
+      } else {
+        Alert.alert('Hata', result.error.message || 'Bir hata oluştu.');
+      }
+    }
   };
+
   return (
     <LinearGradient colors={['#00c853', '#D1EAED']} style={styles.container}>
       <StatusBar
@@ -22,12 +49,16 @@ export default function LoginScreen({navigation, setIsLoggedIn}) {
       />
 
       <View style={styles.innerContainer}>
-        <Text style={styles.title}>EcoApp</Text>
+        <Text style={styles.title}>EcoHesApp</Text>
 
         <TextInput
           placeholder="E-posta"
           placeholderTextColor="#4d4d4d"
           style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
 
         <TextInput
@@ -35,11 +66,11 @@ export default function LoginScreen({navigation, setIsLoggedIn}) {
           placeholderTextColor="#4d4d4d"
           secureTextEntry
           style={styles.input}
+          value={password}
+          onChangeText={setPassword}
         />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => setIsLoggedIn(true)}>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
         </TouchableOpacity>
 
@@ -52,9 +83,7 @@ export default function LoginScreen({navigation, setIsLoggedIn}) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   innerContainer: {
     flex: 1,
     justifyContent: 'center',
