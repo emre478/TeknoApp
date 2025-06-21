@@ -21,7 +21,7 @@ export default function Stock() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <Text>Stok verileri yükleniyor...</Text>
+        <Text>Stok verileri yükleniyor....</Text>
       </View>
     );
   }
