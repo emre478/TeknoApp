@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { BarChart } from 'react-native-chart-kit';
 import { fetchProducts } from '../../Services/fetchProducts';
 import { fetchSales } from '../../Services/fetchSales';
+
+const screenWidth = Dimensions.get('window').width;
 
 export default function GreenFinance() {
   const [dailyCo2, setDailyCo2] = useState(0);
   const [soldProducts, setSoldProducts] = useState([]);
+  const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,34 +21,66 @@ export default function GreenFinance() {
 
       const productsMap = new Map(products.map(p => [p.id, p]));
       const today = new Date().toISOString().slice(0, 10);
-      let totalCo2 = 0;
+      const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+      let totalCo2Today = 0;
       const todaySoldProducts = [];
+      const monthlyCo2Map = {};
 
       sales.forEach(sale => {
-        if (sale.satis_tarihi?.slice(0, 10) === today && sale.urunler) {
-          Object.values(sale.urunler).forEach(soldProduct => {
-            const productDetails = productsMap.get(soldProduct.barkod);
-            if (productDetails && productDetails.karbon_ayak_izi) {
-              const adet = soldProduct.adet || 1;
-              const co2 = (productDetails.karbon_ayak_izi || 0) * adet;
-              totalCo2 += co2;
-              todaySoldProducts.push({
-                ...productDetails,
-                adet,
-                co2,
-              });
+        const saleDate = sale.satis_tarihi?.slice(0, 10);
+        if (!saleDate || !sale.urunler) return;
+
+        let saleCo2 = 0;
+        Object.values(sale.urunler).forEach(soldProduct => {
+          const productDetails = productsMap.get(soldProduct.barkod);
+          if (productDetails && productDetails.karbon_ayak_izi) {
+            const adet = soldProduct.adet || 1;
+            const co2 = (productDetails.karbon_ayak_izi || 0) * adet;
+            saleCo2 += co2;
+            
+            if (saleDate === today) {
+              todaySoldProducts.push({ ...productDetails, adet, co2 });
             }
-          });
+          }
+        });
+
+        if (saleDate === today) {
+          totalCo2Today += saleCo2;
+        }
+
+        if (saleDate >= oneMonthAgo) {
+          monthlyCo2Map[saleDate] = (monthlyCo2Map[saleDate] || 0) + saleCo2;
         }
       });
       
-      setDailyCo2(totalCo2);
+      setDailyCo2(totalCo2Today);
       setSoldProducts(todaySoldProducts);
+
+      if (Object.keys(monthlyCo2Map).length > 0) {
+        const sortedDates = Object.keys(monthlyCo2Map).sort();
+        const labels = sortedDates.map(date => date.slice(5).replace('-', '/'));
+        const data = sortedDates.map(date => monthlyCo2Map[date]);
+        setChartData({
+          labels,
+          datasets: [{ data }],
+        });
+      }
+
       setLoading(false);
     };
 
     getCarbonFootprintData();
   }, []);
+
+  const chartConfig = {
+    backgroundGradientFrom: '#fff',
+    backgroundGradientTo: '#fff',
+    color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
+    labelColor: () => '#333',
+    decimalPlaces: 1,
+    barPercentage: 0.5,
+  };
 
   if (loading) {
     return (
@@ -79,6 +115,27 @@ export default function GreenFinance() {
       ) : (
         <View style={styles.center}>
           <Text>Bugün henüz karbon ayak izi olan bir ürün satılmadı.</Text>
+        </View>
+      )}
+
+      {chartData && (
+        <View style={styles.chartContainer}>
+          <Text style={styles.sectionTitle}>📊 Son 30 Günlük CO₂ Dağılımı</Text>
+          <BarChart
+            data={chartData}
+            width={screenWidth - 32}
+            height={250}
+            chartConfig={chartConfig}
+            yAxisSuffix=" kg"
+            fromZero
+            verticalLabelRotation={30}
+          />
+        </View>
+      )}
+
+      {soldProducts.length === 0 && !chartData && (
+        <View style={styles.center}>
+          <Text>Karbon ayak izi verisi bulunamadı.</Text>
         </View>
       )}
     </ScrollView>
@@ -148,5 +205,19 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#333',
     textAlign: 'center',
+  },
+  chartContainer: {
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    elevation: 2,
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    color: '#333',
   },
 });
