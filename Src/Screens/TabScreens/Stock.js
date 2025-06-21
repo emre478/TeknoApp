@@ -4,7 +4,7 @@ import React from 'react'
 export default function Stock() {
   return (
     <View>
-      <Text>Stocks</Text>
+      <Text>Stocks.</Text>
     </View>
   )
 }
