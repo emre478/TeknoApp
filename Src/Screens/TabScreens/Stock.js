@@ -4,50 +4,105 @@ import { fetchProducts } from '../../Services/fetchProducts';
 
 export default function Stock() {
   const [lowStockProducts, setLowStockProducts] = useState([]);
+  const [expiringSoonProducts, setExpiringSoonProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getLowStockProducts = async () => {
+    const getStockData = async () => {
       const products = await fetchProducts();
-      const filtered = products.filter(
-        (product) => product.stok_miktari !== undefined && product.stok_miktari <= 70
+      
+      // Stok seviyesi filtresi
+      const lowStock = products.filter(
+        (p) => p.stok_miktari !== undefined && p.stok_miktari <= 70
       );
-      setLowStockProducts(filtered);
+      setLowStockProducts(lowStock);
+
+      // Son kullanma tarihi filtresi
+      const today = new Date();
+      const oneWeekFromNow = new Date();
+      oneWeekFromNow.setDate(today.getDate() + 7);
+
+      const expiringSoon = products.filter(p => {
+        if (!p.son_kullanma_tarihi) return false;
+        const expDate = new Date(p.son_kullanma_tarihi);
+        return expDate >= today && expDate <= oneWeekFromNow;
+      });
+      setExpiringSoonProducts(expiringSoon);
+
       setLoading(false);
     };
-    getLowStockProducts();
+    getStockData();
   }, []);
 
   if (loading) {
     return (
       <View style={styles.center}>
-        <Text>Stok verileri yükleniyor....</Text>
+        <Text>Stok verileri yükleniyor...</Text>
       </View>
     );
   }
 
+  const renderProductRow = (product) => (
+    <View key={product.id} style={styles.tableRow}>
+      <Text style={[styles.tableCell, { flex: 2 }]}>{product.urun_adi || product.id}</Text>
+      <Text style={[styles.tableCell, { color: product.stok_miktari <= 20 ? '#F44336' : '#FFA726' }]}>
+        {product.stok_miktari}
+      </Text>
+    </View>
+  );
+
+  const renderExpiringRow = (product) => {
+    const expDate = new Date(product.son_kullanma_tarihi);
+    const today = new Date();
+    const diffTime = Math.abs(expDate - today);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return (
+      <View key={product.id} style={styles.tableRow}>
+        <Text style={[styles.tableCell, { flex: 2 }]}>{product.urun_adi || product.id}</Text>
+        <Text style={[styles.tableCell, { color: diffDays <= 3 ? '#F44336' : '#FFA726'}]}>
+          {diffDays} gün kaldı
+        </Text>
+      </View>
+    );
+  };
+  
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Stok Seviyesi Düşük Ürünler */}
       <View style={styles.summaryCard}>
         <Text style={styles.summaryTitle}>Stok Seviyesi Düşük Ürünler</Text>
         <Text style={styles.summaryValue}>{lowStockProducts.length} ürün</Text>
       </View>
-      {lowStockProducts.length === 0 ? (
-        <View style={styles.center}>
-          <Text>Tüm ürünlerin stoğu yeterli.</Text>
-        </View>
-      ) : (
+      {lowStockProducts.length > 0 && (
         <View style={styles.tableContainer}>
           <View style={styles.tableHeader}>
-            <Text style={[styles.tableCell, styles.headerCell, {flex:2}]}>Ürün Adı</Text>
+            <Text style={[styles.tableCell, styles.headerCell, { flex: 2 }]}>Ürün Adı</Text>
             <Text style={[styles.tableCell, styles.headerCell]}>Stok</Text>
           </View>
-          {lowStockProducts.map((product) => (
-            <View key={product.id} style={styles.tableRow}>
-              <Text style={[styles.tableCell, {flex:2}]}>{product.urun_adi || product.id}</Text>
-              <Text style={[styles.tableCell, {color: product.stok_miktari <= 20 ? '#F44336' : '#FFA726'}]}>{product.stok_miktari}</Text>
-            </View>
-          ))}
+          {lowStockProducts.map(renderProductRow)}
+        </View>
+      )}
+
+      {/* SKT'si Yaklaşan Ürünler */}
+      <View style={[styles.summaryCard, {marginTop: 20}]}>
+        <Text style={styles.summaryTitle}>SKT'si Yaklaşan Ürünler</Text>
+        <Text style={styles.summaryValue}>{expiringSoonProducts.length} ürün</Text>
+      </View>
+      {expiringSoonProducts.length > 0 && (
+        <View style={styles.tableContainer}>
+          <View style={styles.tableHeader}>
+            <Text style={[styles.tableCell, styles.headerCell, { flex: 2 }]}>Ürün Adı</Text>
+            <Text style={[styles.tableCell, styles.headerCell]}>Kalan Süre</Text>
+          </View>
+          {expiringSoonProducts.map(renderExpiringRow)}
+        </View>
+      )}
+
+      {lowStockProducts.length === 0 && expiringSoonProducts.length === 0 && (
+         <View style={styles.center}>
+          <Text>Stoklar ve son kullanma tarihleri normal.</Text>
         </View>
       )}
     </ScrollView>
@@ -89,6 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 2,
     overflow: 'hidden',
+    marginBottom: 20,
   },
   tableHeader: {
     flexDirection: 'row',
