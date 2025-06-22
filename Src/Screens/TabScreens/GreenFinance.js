@@ -4,6 +4,7 @@ import { BarChart } from 'react-native-chart-kit';
 import { fetchProducts } from '../../Services/fetchProducts';
 import { fetchSales } from '../../Services/fetchSales';
 
+
 const screenWidth = Dimensions.get('window').width;
 
 export default function GreenFinance() {
@@ -147,6 +148,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     padding: 16,
+    
   },
   center: {
     flex: 1,
@@ -179,6 +181,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 2,
     overflow: 'hidden',
+    marginBottom: 8,
   },
   tableHeader: {
     flexDirection: 'row',
@@ -207,6 +210,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   chartContainer: {
+    marginTop: 20,
     marginBottom: 20,
     backgroundColor: '#fff',
     padding: 16,
