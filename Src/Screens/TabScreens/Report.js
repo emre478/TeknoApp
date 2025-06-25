@@ -118,32 +118,42 @@ const Report = () => {
       {topSoldProducts && (
         <View style={styles.chartContainer}>
           <Text style={styles.sectionTitle}>🏆 En Çok Satılan 10 Ürün</Text>
-          <BarChart
-            data={topSoldProducts}
-            width={screenWidth - 32}
-            height={250}
-            yAxisLabel=""
-            yAxisSuffix=" adet"
-            chartConfig={chartConfig}
-            verticalLabelRotation={30}
-            fromZero
-          />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <BarChart
+              data={topSoldProducts}
+              width={Math.max(screenWidth - 32, topSoldProducts.labels.length * 60)}
+              height={250}
+              yAxisLabel=""
+              yAxisSuffix=" adet"
+              chartConfig={{
+                ...chartConfig,
+                propsForVerticalLabels: { fontSize: 10 },
+              }}
+              verticalLabelRotation={0}
+              fromZero
+            />
+          </ScrollView>
         </View>
       )}
 
       {topProfitableProducts && (
         <View style={styles.chartContainer}>
           <Text style={styles.sectionTitle}>💰 En Karlı 10 Ürün</Text>
-          <BarChart
-            data={topProfitableProducts}
-            width={screenWidth - 32}
-            height={250}
-            yAxisLabel="₺"
-            yAxisSuffix=""
-            chartConfig={chartConfig}
-            verticalLabelRotation={30}
-            fromZero
-          />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <BarChart
+              data={topProfitableProducts}
+              width={Math.max(screenWidth - 32, topProfitableProducts.labels.length * 60)}
+              height={250}
+              yAxisLabel="₺"
+              yAxisSuffix=""
+              chartConfig={{
+                ...chartConfig,
+                propsForVerticalLabels: { fontSize: 10 },
+              }}
+              verticalLabelRotation={0}
+              fromZero
+            />
+          </ScrollView>
         </View>
       )}
     </ScrollView>

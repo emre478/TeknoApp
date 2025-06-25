@@ -16,7 +16,7 @@ const EmailScreen = ({ navigation }) => {
 
   const handleSendReset = async () => {
     if (!email) {
-      Alert.alert('Eksik Bilgi', 'Lütfen e-posta adresinizi girin.');
+      Alert.alert('Eksik Bilgi', 'Lütfen e-posta. adresinizi girin.');
       return;
     }
 

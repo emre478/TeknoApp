@@ -119,18 +119,20 @@ export default function GreenFinance() {
         </View>
       )}
 
-      {chartData && (
+      {chartData && chartData.datasets && Array.isArray(chartData.datasets) && chartData.datasets[0] && Array.isArray(chartData.datasets[0].data) && (
         <View style={styles.chartContainer}>
           <Text style={styles.sectionTitle}>📊 Son 30 Günlük CO₂ Dağılımı</Text>
-          <BarChart
-            data={chartData}
-            width={screenWidth - 32}
-            height={250}
-            chartConfig={chartConfig}
-            yAxisSuffix=" kg"
-            fromZero
-            verticalLabelRotation={30}
-          />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <BarChart
+              data={chartData}
+              width={Math.max(screenWidth - 32, chartData.labels.length * 50)}
+              height={250}
+              chartConfig={chartConfig}
+              yAxisSuffix=" kg"
+              fromZero
+              verticalLabelRotation={30}
+            />
+          </ScrollView>
         </View>
       )}
 

@@ -275,22 +275,26 @@ const Dashboard = () => {
     <View style={styles.chartContainer}>
       <Text style={styles.sectionTitle}>📈 Son 7 Gün Kar Grafiği</Text>
       {chartData.labels.length > 0 && (
-        <BarChart
-          data={{labels: chartData.labels, datasets: [{data: chartData.data}]}}
-          width={screenWidth - 32}
-          height={220}
-          fromZero
-          yAxisLabel="₺"
-          chartConfig={{
-            backgroundGradientFrom: '#fff',
-            backgroundGradientTo: '#fff',
-            color: (opacity = 1) => `rgba(0, 128, 0, ${opacity})`,
-            labelColor: () => '#333',
-            decimalPlaces: 2,
-            barPercentage: 0.7,
-          }}
-          style={{marginVertical: 8, borderRadius: 12}}
-        />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <BarChart
+            data={{labels: chartData.labels, datasets: [{data: chartData.data}]}}
+            width={Math.max(screenWidth - 32, chartData.labels.length * 60)}
+            height={220}
+            fromZero
+            yAxisLabel="₺"
+            chartConfig={{
+              backgroundGradientFrom: '#fff',
+              backgroundGradientTo: '#fff',
+              color: (opacity = 1) => `rgba(0, 128, 0, ${opacity})`,
+              labelColor: () => '#333',
+              decimalPlaces: 2,
+              barPercentage: 0.7,
+              propsForVerticalLabels: { fontSize: 10 },
+            }}
+            style={{marginVertical: 8, borderRadius: 12}}
+            verticalLabelRotation={0}
+          />
+        </ScrollView>
       )}
     </View>
   );
